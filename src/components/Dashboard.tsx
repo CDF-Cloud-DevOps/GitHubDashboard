@@ -10,15 +10,17 @@ import { ArrowLeft } from 'lucide-react';
 interface DashboardProps {
   config: GithubConfig;
   onBack: () => void;
+  dashboardConfig:any;
+  onConfigChange: (newConfig:any) => void
 }
 
-export function Dashboard({ config, onBack }: DashboardProps) {
+export function Dashboard({ config, onBack, dashboardConfig,onConfigChange }: DashboardProps) {
   const [dateRange, setDateRange] = React.useState('1m');
-  const { data, loading, error } = useGitHubData(config, dateRange);
+    const { data, loading, error, loadingMessage } = useGitHubData(config, dateRange);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+    if (loading) {
+        return <LoadingSpinner message={loadingMessage} />;
+    }
 
   if (error) {
     return <ErrorMessage message={error} />;
@@ -27,6 +29,7 @@ export function Dashboard({ config, onBack }: DashboardProps) {
   if (!data) {
     return null;
   }
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -53,7 +56,7 @@ export function Dashboard({ config, onBack }: DashboardProps) {
         </div>
       </header>
 
-      <DashboardContent data={data} />
+      <DashboardContent data={data} dateRange={dateRange} dashboardConfig={dashboardConfig}/>
     </div>
   );
 }

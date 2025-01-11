@@ -2,6 +2,7 @@ import React from 'react';
 import { GitPullRequest, GitMerge, GitBranch } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { MetricCard } from '../MetricCard';
+import { format } from 'date-fns';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -12,16 +13,17 @@ interface PullRequestMetricsProps {
       opened: number;
       merged: number;
       closed: number;
-       date:string;
+      date: string;
     }>;
     sizes: Array<{
       size: string;
       count: number;
     }>;
   };
+     isDaily:boolean;
 }
 
-export function PullRequestMetrics({ data }: PullRequestMetricsProps) {
+export function PullRequestMetrics({ data, isDaily }: PullRequestMetricsProps) {
   if (!data?.monthlyStats?.length) {
     return null;
   }
@@ -31,7 +33,7 @@ export function PullRequestMetrics({ data }: PullRequestMetricsProps) {
   const mergeRate = totalPRs ? Math.round((totalMerged / totalPRs) * 100) : 0;
 
   return (
-    <section className="bg-white rounded-lg shadow-md p-6">
+    <section>
       <div className="flex items-center gap-2 mb-6">
         <GitPullRequest className="text-blue-600 w-6 h-6" />
         <h2 className="text-xl font-semibold">Pull Request Metrics</h2>
@@ -61,20 +63,36 @@ export function PullRequestMetrics({ data }: PullRequestMetricsProps) {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.monthlyStats}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                  dataKey="date"
                   tickFormatter={(value) => {
-                    const [year, month] = value.split('-');
-                    return `${month}/${year.slice(2)}`;
-                  }}
-              />
-              <YAxis />
-             <Tooltip 
-                  labelFormatter={(value) => {
-                    const [year, month] = value.split('-');
-                    return `${month}/${year}`;
+                       if(isDaily){
+                        try {
+                            return format(new Date(value), 'MMM d');
+                        } catch(e) {
+                            return value;
+                        }
+                    } else {
+                         const [year, month] = value.split('-');
+                         return `${month}/${year.slice(2)}`;
+                    }
                   }}
                 />
+              <YAxis />
+           <Tooltip
+                labelFormatter={(value) => {
+                   if(isDaily){
+                    try {
+                            return format(new Date(value), 'MMM d, yyyy');
+                        } catch(e) {
+                            return value;
+                        }
+                    } else {
+                        const [year, month] = value.split('-');
+                         return `${month}/${year}`;
+                    }
+                 }}
+            />
               <Legend />
               <Line type="monotone" dataKey="opened" stroke="#0088FE" name="Opened" strokeWidth={2} />
               <Line type="monotone" dataKey="merged" stroke="#00C49F" name="Merged" strokeWidth={2} />

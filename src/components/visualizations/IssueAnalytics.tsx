@@ -2,6 +2,7 @@ import React from 'react';
 import { Activity, AlertCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MetricCard } from '../MetricCard';
+import { format } from 'date-fns';
 
 interface IssueAnalyticsProps {
   data: {
@@ -9,12 +10,13 @@ interface IssueAnalyticsProps {
       month: string;
       created: number;
       closed: number;
-        date:string;
+      date: string;
     }>;
   };
+   isDaily:boolean;
 }
 
-export function IssueAnalytics({ data }: IssueAnalyticsProps) {
+export function IssueAnalytics({ data, isDaily }: IssueAnalyticsProps) {
   if (!data?.monthlyStats?.length) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -32,7 +34,7 @@ export function IssueAnalytics({ data }: IssueAnalyticsProps) {
   const closeRate = totalIssues ? Math.round((totalClosed / totalIssues) * 100) : 0;
 
   return (
-    <section className="bg-white rounded-lg shadow-md p-6">
+    <section>
       <div className="flex items-center gap-2 mb-6">
         <Activity className="text-blue-600 w-6 h-6" />
         <h2 className="text-xl font-semibold">Issue Analytics</h2>
@@ -57,41 +59,57 @@ export function IssueAnalytics({ data }: IssueAnalyticsProps) {
       </div>
       
       <div className="bg-gray-50 rounded-lg p-4 h-80">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Issue Trends</h3>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data.monthlyStats}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={(value) => {
-                const [year, month] = value.split('-');
-                return `${month}/${year.slice(2)}`;
-              }}
+          <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Issue Trends</h3>
+          <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.monthlyStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value) => {
+                    if(isDaily){
+                        try {
+                            return format(new Date(value), 'MMM d');
+                        } catch(e) {
+                            return value;
+                        }
+                    } else {
+                         const [year, month] = value.split('-');
+                         return `${month}/${year.slice(2)}`;
+                    }
+                }}
             />
-            <YAxis />
-            <Tooltip 
-             labelFormatter={(value) => {
-                    const [year, month] = value.split('-');
-                    return `${month}/${year}`;
-                  }}
-            />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="created" 
-              stroke="#0088FE" 
-              name="Created"
-              strokeWidth={2}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="closed" 
-              stroke="#00C49F" 
-              name="Closed"
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+              <YAxis />
+            <Tooltip
+                labelFormatter={(value) => {
+                   if(isDaily){
+                    try {
+                            return format(new Date(value), 'MMM d, yyyy');
+                        } catch(e) {
+                            return value;
+                        }
+                    } else {
+                        const [year, month] = value.split('-');
+                         return `${month}/${year}`;
+                    }
+                 }}
+             />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="created"
+                stroke="#0088FE"
+                name="Created"
+                strokeWidth={2}
+              />
+              <Line
+                type="monotone"
+                dataKey="closed"
+                stroke="#00C49F"
+                name="Closed"
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
       </div>
     </section>
   );
