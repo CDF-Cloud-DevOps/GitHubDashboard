@@ -12,6 +12,7 @@ interface PullRequestMetricsProps {
       opened: number;
       merged: number;
       closed: number;
+       date:string;
     }>;
     sizes: Array<{
       size: string;
@@ -61,19 +62,19 @@ export function PullRequestMetrics({ data }: PullRequestMetricsProps) {
             <LineChart data={data.monthlyStats}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                dataKey="month" 
-                tickFormatter={(value) => {
-                  const [year, month] = value.split('-');
-                  return `${month}/${year.slice(2)}`;
-                }}
+                dataKey="date" 
+                  tickFormatter={(value) => {
+                    const [year, month] = value.split('-');
+                    return `${month}/${year.slice(2)}`;
+                  }}
               />
               <YAxis />
-              <Tooltip 
-                labelFormatter={(value) => {
-                  const [year, month] = value.split('-');
-                  return `${month}/${year}`;
-                }}
-              />
+             <Tooltip 
+                  labelFormatter={(value) => {
+                    const [year, month] = value.split('-');
+                    return `${month}/${year}`;
+                  }}
+                />
               <Legend />
               <Line type="monotone" dataKey="opened" stroke="#0088FE" name="Opened" strokeWidth={2} />
               <Line type="monotone" dataKey="merged" stroke="#00C49F" name="Merged" strokeWidth={2} />

@@ -9,6 +9,7 @@ interface IssueAnalyticsProps {
       month: string;
       created: number;
       closed: number;
+        date:string;
     }>;
   };
 }
@@ -61,7 +62,7 @@ export function IssueAnalytics({ data }: IssueAnalyticsProps) {
           <LineChart data={data.monthlyStats}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
-              dataKey="month" 
+              dataKey="date" 
               tickFormatter={(value) => {
                 const [year, month] = value.split('-');
                 return `${month}/${year.slice(2)}`;
@@ -69,10 +70,10 @@ export function IssueAnalytics({ data }: IssueAnalyticsProps) {
             />
             <YAxis />
             <Tooltip 
-              labelFormatter={(value) => {
-                const [year, month] = value.split('-');
-                return `${month}/${year}`;
-              }}
+             labelFormatter={(value) => {
+                    const [year, month] = value.split('-');
+                    return `${month}/${year}`;
+                  }}
             />
             <Legend />
             <Line 

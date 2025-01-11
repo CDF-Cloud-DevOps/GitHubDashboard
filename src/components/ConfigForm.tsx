@@ -4,12 +4,13 @@ import { AlertCircle } from 'lucide-react';
 
 interface ConfigFormProps {
   onSubmit: (config: GithubConfig) => void;
+    initialPat?: string;
 }
 
-export function ConfigForm({ onSubmit }: ConfigFormProps) {
+export function ConfigForm({ onSubmit, initialPat }: ConfigFormProps) {
   const [repoUrl, setRepoUrl] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-  const [pat, setPat] = useState('');
+    const [pat, setPat] = useState(initialPat || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -165,7 +165,12 @@ function transformIssuesData(issues: any[], dateRange: string) {
         return acc;
     }, []);
 
-    return { monthlyStats: monthlyStats.sort((a, b) => a.month.localeCompare(b.month)) };
+   return {
+        monthlyStats: monthlyStats.sort((a, b) => a.month.localeCompare(b.month)).map(item => ({
+            ...item,
+            date: item.month // Add date for x-axis
+        }))
+    };
 }
 
 function transformPRsData(prs: any[], dateRange: string) {
@@ -204,7 +209,10 @@ function transformPRsData(prs: any[], dateRange: string) {
     }, []);
 
     return {
-        monthlyStats: monthlyStats.sort((a, b) => a.month.localeCompare(b.month)),
+        monthlyStats: monthlyStats.sort((a, b) => a.month.localeCompare(b.month)).map(item => ({
+            ...item,
+           date: item.month // Add date for x-axis
+        })),
         sizes
     };
 }
@@ -250,17 +258,34 @@ function transformWorkflowData(workflowRuns: { workflowName: string, runs: any }
 export function useGitHubData(config: GithubConfig, dateRange: string) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+    const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+    const [cache, setCache] = useState<any>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
+    useEffect(() => {
+      const cachedData = localStorage.getItem(`github-data-${config.repoUrl}-${dateRange}`);
+      if(cachedData){
+          setData(JSON.parse(cachedData));
+          setLoading(false);
+          return;
+      }
+
+      setLoading(true);
+        setLoadingMessage('Loading repository data...');
+      setError(null);
 
     fetchGitHubData(config, dateRange)
-      .then(setData)
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [config, dateRange]);
+      .then((apiData) => {
+        setData(apiData);
+         localStorage.setItem(`github-data-${config.repoUrl}-${dateRange}`, JSON.stringify(apiData));
+        setCache(apiData);
+      })
+       .catch(err => setError(err.message))
+      .finally(() => {
+          setLoading(false);
+          setLoadingMessage(null);
+        });
+    }, [config, dateRange]);
 
-  return { data, loading, error };
+  return { data, loading, error, loadingMessage };
 }
