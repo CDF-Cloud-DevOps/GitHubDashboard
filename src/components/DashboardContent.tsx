@@ -3,7 +3,9 @@ import { IssueAnalytics } from './visualizations/IssueAnalytics';
 import { PullRequestMetrics } from './visualizations/PullRequestMetrics';
 import { RepositoryHealth } from './visualizations/RepositoryHealth';
 import { WorkflowAnalytics } from './visualizations/WorkflowAnalytics';
-import { GranularChartTabs } from './GranularChartTabs';
+import { GranularChartTabs } from '../components/GranularChartTabs';
+import { WeeklyIssueCharts } from './visualizations/WeeklyIssueCharts';
+import { WeeklyPRCharts } from './visualizations/WeeklyPRCharts';
 
 interface DashboardContentProps {
     data: any;
@@ -20,23 +22,19 @@ export function DashboardContent({ data, dateRange, dashboardConfig }: Dashboard
     return (
         <div className="space-y-8">
            {dashboardConfig.metrics.includes('issues') &&
-               <GranularChartTabs
-                   dailyContent={<>
-                       <IssueAnalytics data={data.issues} isDaily={isDailyRange}/>
-                   </>}
-                   monthlyContent={<>
-                       <IssueAnalytics data={data.issues} isDaily={false}/>
-                   </>}
-               />
+                <GranularChartTabs
+                    monthlyContent={<IssueAnalytics data={data.issues} isDaily={false}/>}
+                    dailyContent={<WeeklyIssueCharts weeklyStats={data.issues.weeklyStats} assigneeStats={data.issues.assigneeStats} labelStats={data.issues.labelStats}/>}
+                    tab1Name={"Detailed View"}
+                    tab2Name={"Overview"}
+                />
            }
            {dashboardConfig.metrics.includes('pullRequests') &&
                <GranularChartTabs
-                   dailyContent={<>
-                       <PullRequestMetrics data={data.pullRequests} isDaily={isDailyRange}/>
-                   </>}
-                   monthlyContent={<>
-                       <PullRequestMetrics data={data.pullRequests} isDaily={false}/>
-                   </>}
+                     monthlyContent={<PullRequestMetrics data={data.pullRequests} isDaily={false}/>}
+                    dailyContent={<WeeklyPRCharts weeklyStats={data.pullRequests.weeklyStats} authorStats={data.pullRequests.authorStats} waitingPRs={data.pullRequests.waitingPRs} labelStats={data.pullRequests.labelStats} reviewerStats={data.pullRequests.reviewerStats} />}
+                    tab1Name={"Detailed View"}
+                    tab2Name={"Overview"}
                />
             }
            {dashboardConfig.metrics.includes('repositoryHealth') &&
