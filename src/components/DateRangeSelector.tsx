@@ -27,6 +27,12 @@ export function DateRangeSelector({ value, onChange, data }: DateRangeSelectorPr
           onChange={(e) => onChange(e.target.value)}
           className="border-none bg-transparent focus:outline-none text-gray-700"
         >
+            <option value="1d">Last Day</option>
+            <option value="2d">Last 2 Days</option>
+            <option value="3d">Last 3 Days</option>
+            <option value="1w">Last Week</option>
+            <option value="2w">Last 2 Weeks</option>
+            <option value="3w">Last 3 Weeks</option>
           <option value="1m">Last Month</option>
           <option value="3m">Last 3 Months</option>
           <option value="6m">Last 6 Months</option>
